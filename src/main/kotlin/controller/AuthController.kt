@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import jakarta.validation.Valid
+import org.ebisur.dto.UserCreationDto
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,7 +19,7 @@ import jakarta.validation.Valid
 class AuthController(private val userService: UserService) {
 
     @PostMapping("/register")
-    fun registerUser(@Valid @RequestBody userDto: UserDto): ResponseEntity<UserDto> {
+    fun registerUser(@Valid @RequestBody userDto: UserCreationDto): ResponseEntity<UserDto> {
         val registeredUser = userService.registerUser(userDto)
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser)
     }

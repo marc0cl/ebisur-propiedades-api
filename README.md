@@ -1,16 +1,19 @@
 # Ebisur API
 
-Este proyecto es una API RESTful segura construida con Spring Boot 3 y Kotlin, utilizando las mejores prácticas de desarrollo y seguridad.
+## Overview
 
-## Características Principales
+Ebisur API is a robust, secure RESTful service built with Spring Boot 3 and Kotlin. It implements industry-standard security practices and follows modern development patterns to provide a scalable and maintainable backend solution.
 
-- Autenticación y autorización basada en JWT
-- Manejo de roles de usuario
-- Operaciones CRUD para usuarios
-- Validación de entrada robusta
-- Protección contra vulnerabilidades comunes de seguridad web
+## Key Features
 
-## Tecnologías y Frameworks
+- JWT-based authentication and authorization
+- Role-based access control
+- User management with CRUD operations
+- Comprehensive input validation
+- Protection against common web vulnerabilities
+- Environment-specific configurations
+
+## Tech Stack
 
 - Kotlin 1.9.x
 - Spring Boot 3.2.x
@@ -18,123 +21,86 @@ Este proyecto es una API RESTful segura construida con Spring Boot 3 y Kotlin, u
 - JSON Web Tokens (JWT)
 - JPA / Hibernate
 - Gradle
-- H2 Database (desarrollo) / MySQL (producción)
+- H2 Database (Development) / MySQL (Production)
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 src
 ├── main
-│   ├── kotlin
-│   │   └── org
-│   │       └── ebisur
-│   │           ├── Application.kt
-│   │           ├── config
-│   │           │   ├── SecurityConfig.kt
-│   │           │   └── AuthConfig.kt
-│   │           ├── controller
-│   │           │   ├── AuthController.kt
-│   │           │   └── UserController.kt
-│   │           ├── dto
-│   │           │   └── UserDto.kt
-│   │           ├── model
-│   │           │   └── User.kt
-│   │           ├── repository
-│   │           │   └── UserRepository.kt
-│   │           ├── security
-│   │           │   └── JwtAuthenticationFilter.kt
-│   │           └── service
-│   │               ├── JwtService.kt
-│   │               └── UserService.kt
+│   ├── kotlin/org/ebisur
+│   │   ├── config
+│   │   ├── controller
+│   │   ├── dto
+│   │   ├── model
+│   │   ├── repository
+│   │   ├── security
+│   │   └── service
 │   └── resources
 │       ├── application.properties
 │       ├── application-dev.properties
 │       └── application-prod.properties
 └── test
-    └── kotlin
-        └── org
-            └── ebisur
-                └── ApplicationTests.kt
-
-build.gradle.kts
+    └── kotlin/org/ebisur
 ```
 
-## Buenas Prácticas y Patrones de Diseño Implementados
+## Design Patterns and Best Practices
 
-1. **Arquitectura en Capas**: Separación clara de responsabilidades entre controladores, servicios y repositorios.
+1. **Layered Architecture**: Clear separation of concerns between controllers, services, and repositories.
+2. **DTO Pattern**: Utilization of Data Transfer Objects for inter-layer communication.
+3. **Dependency Injection**: Leveraging Spring's IoC container for loose coupling.
+4. **Single Responsibility Principle**: Each class has a well-defined, single responsibility.
+5. **Global Exception Handling**: Centralized error management using `@ControllerAdvice`.
+6. **Input Validation**: Robust input validation using Jakarta validation annotations.
+7. **Multi-layered Security**: Method-level and URL-based security implementations.
+8. **Externalized Configuration**: Environment-specific property files for flexible deployment.
+9. **Secure Password Storage**: BCrypt hashing for password security.
+10. **Stateless Authentication**: JWT-based authentication for scalability.
 
-2. **DTO Pattern**: Uso de Data Transfer Objects para la comunicación entre capas, evitando la exposición directa de entidades de dominio.
+## Security Considerations
 
-3. **Inyección de Dependencias**: Utilización de Spring para la inyección de dependencias, reduciendo el acoplamiento.
+- CORS configuration tailored for specific environments
+- CSRF protection strategy for stateless APIs
+- Mandatory HTTPS in production
+- Rate limiting to prevent brute-force attacks
+- Comprehensive input validation and sanitization
+- Implementation of security HTTP headers
+- Regular rotation of JWT secrets
 
-4. **Principio de Responsabilidad Única (SRP)**: Cada clase tiene una única responsabilidad bien definida.
+## Getting Started
 
-5. **Manejo de Excepciones Centralizado**: Uso de `@ControllerAdvice` para manejar excepciones de manera global.
-
-6. **Validación de Entrada**: Implementación de validaciones robustas usando anotaciones de validación de Jakarta.
-
-7. **Seguridad en Capas**: Implementación de seguridad a nivel de método y a nivel de URL.
-
-8. **Configuración Externalizada**: Uso de archivos de propiedades específicos para diferentes entornos.
-
-9. **Encriptación de Contraseñas**: Uso de BCrypt para el hash seguro de contraseñas.
-
-10. **Autenticación Stateless**: Implementación de autenticación basada en JWT para mantener la aplicación stateless.
-
-## Anotaciones Clave Utilizadas
-
-- `@SpringBootApplication`: Configura la aplicación Spring Boot.
-- `@Configuration`: Define clases de configuración de Spring.
-- `@EnableWebSecurity`: Habilita la seguridad web de Spring.
-- `@EnableMethodSecurity`: Permite la seguridad a nivel de método.
-- `@Service`: Marca clases como componentes de servicio.
-- `@Repository`: Indica que una clase es un repositorio de datos.
-- `@RestController`: Define controladores REST.
-- `@RequestMapping`: Mapea rutas HTTP a métodos de controlador.
-- `@Transactional`: Gestiona transacciones de base de datos.
-- `@Entity`: Marca clases como entidades JPA.
-- `@Id`, `@GeneratedValue`: Configuran claves primarias en entidades.
-- `@Column`: Personaliza el mapeo de columnas de base de datos.
-- `@Value`: Inyecta valores de propiedades en campos.
-
-## Consideraciones de Seguridad
-
-- Implementación de CORS configurado para entornos específicos.
-- Protección contra CSRF deshabilitada para APIs stateless (considerar habilitar para aplicaciones con estado).
-- Uso de HTTPS obligatorio en producción.
-- Implementación de rate limiting para prevenir ataques de fuerza bruta.
-- Validación y sanitización de todas las entradas de usuario.
-- Uso de cabeceras de seguridad HTTP.
-- Rotación regular de secretos JWT.
-
-## Configuración y Ejecución
-
-1. Clonar el repositorio.
-2. Configurar las propiedades de la base de datos en `application-dev.properties` y `application-prod.properties`.
-3. Para desarrollo local:
+1. Clone the repository:
    ```
-   ./gradlew bootRun --args='--spring.profiles.active=dev'
-   ```
-4. Para producción:
-   ```
-   ./gradlew bootRun --args='--spring.profiles.active=prod'
+   git clone https://github.com/marc0cl/ebisur-propiedades-api
    ```
 
-## Pruebas
+2. Configure database properties in `application-dev.properties` and `application-prod.properties`.
 
-Ejecutar pruebas unitarias e integración:
+3. Run the application:
+   - Development:
+     ```
+     ./gradlew bootRun --args='--spring.profiles.active=dev'
+     ```
+   - Production:
+     ```
+     ./gradlew bootRun --args='--spring.profiles.active=prod'
+     ```
+
+## Testing
+
+Execute the test suite:
 ```
 ./gradlew test
 ```
 
-## Seguridad y Mejores Prácticas
+## Security Best Practices
 
-- Mantener todas las dependencias actualizadas regularmente.
-- Realizar auditorías de seguridad periódicas.
-- Implementar logging extensivo para todas las operaciones críticas.
-- Utilizar variables de entorno para secrets en producción.
-- Realizar backups regulares de la base de datos.
+- Regular dependency updates
+- Periodic security audits
+- Comprehensive logging for critical operations
+- Use of environment variables for production secrets
+- Regular database backups
 
-## Contribución
+## Contributing
 
-Las contribuciones son bienvenidas. Por favor, abra un issue para discutir cambios mayores antes de crear un pull request.
+We welcome contributions! Please open an issue to discuss major changes before submitting a pull request.

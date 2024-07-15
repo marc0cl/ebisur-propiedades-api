@@ -1,16 +1,19 @@
 package org.ebisur.service
 
 import org.ebisur.dto.LoginDto
+import org.ebisur.dto.UserCreationDto
 import org.ebisur.dto.UserDto
+import org.ebisur.dto.UserUpdateDto
 import org.ebisur.model.User
 import org.ebisur.repository.UserRepository
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.util.*
 
 @Service
 class UserService(
@@ -21,16 +24,15 @@ class UserService(
 ) {
 
     @Transactional
-    fun registerUser(userDto: UserDto): UserDto {
+    fun registerUser(userCreationDto: UserCreationDto): UserDto {
         val user = User(
-            name = userDto.name,
-            email = userDto.email,
-            password = passwordEncoder.encode(userDto.password),
-            dateOfBirth = userDto.dateOfBirth,
-            insertionDate = LocalDateTime.now()
+            name = userCreationDto.name,
+            email = userCreationDto.email,
+            password = passwordEncoder.encode(userCreationDto.password),
+            dateOfBirth = userCreationDto.dateOfBirth
         )
         val savedUser = userRepository.save(user)
-        return UserDto(savedUser.id, savedUser.name, savedUser.username, "", savedUser.dateOfBirth)
+        return UserDto(savedUser.name, savedUser.username, savedUser.dateOfBirth, savedUser.role)
     }
 
     fun loginUser(loginDto: LoginDto): String {
@@ -42,26 +44,52 @@ class UserService(
         return jwtService.generateToken(user)
     }
 
-    fun getUser(id: Long): UserDto {
+    fun getUser(id: UUID): UserDto {
         val user = userRepository.findById(id).orElseThrow { UsernameNotFoundException("User not found") }
-        return UserDto(user.id, user.name, user.username, "", user.dateOfBirth)
+        return UserDto(user.name, user.username, user.dateOfBirth, user.role)
     }
 
     @Transactional
-    fun updateUser(id: Long, userDto: UserDto): UserDto {
+    fun updateUser(id: UUID, userUpdateDto: UserUpdateDto): UserDto {
         val user = userRepository.findById(id).orElseThrow { UsernameNotFoundException("User not found") }
+
+        // Verificar si el usuario actual tiene permiso para actualizar este usuario
+        val currentUser = SecurityContextHolder.getContext().authentication.principal as User
+        if (currentUser.id != user.id && !currentUser.authorities.any { it.authority == "ROLE_ADMIN" }) {
+            throw IllegalAccessException("You don't have permission to update this user")
+        }
+
+        // Verificar la contraseña actual
+        if (!passwordEncoder.matches(userUpdateDto.currentPassword, user.password)) {
+            throw IllegalArgumentException("Current password is incorrect")
+        }
+
         val updatedUser = user.copy(
-            name = userDto.name,
-            email = userDto.email,
-            password = if (userDto.password.isNotBlank()) passwordEncoder.encode(userDto.password) else user.password,
-            dateOfBirth = userDto.dateOfBirth
+            name = userUpdateDto.name,
+            email = userUpdateDto.email,
+            password = if (userUpdateDto.newPassword.isNotBlank()) passwordEncoder.encode(userUpdateDto.newPassword) else user.password,
+            dateOfBirth = userUpdateDto.dateOfBirth
         )
         val savedUser = userRepository.save(updatedUser)
-        return UserDto(savedUser.id, savedUser.name, savedUser.username, "", savedUser.dateOfBirth)
+        return UserDto(savedUser.name, savedUser.username, savedUser.dateOfBirth, savedUser.role)
     }
 
     @Transactional
-    fun deleteUser(id: Long) {
+    fun updateUserPasswordByAdmin(id: UUID, newPassword: String) {
+        val currentUser = SecurityContextHolder.getContext().authentication.principal as User
+        if (!currentUser.authorities.any { it.authority == "ROLE_ADMIN" }) {
+            throw IllegalAccessException("Only admins can update other users' passwords")
+        }
+
+        val user = userRepository.findById(id).orElseThrow { UsernameNotFoundException("User not found") }
+        val updatedUser = user.copy(
+            password = passwordEncoder.encode(newPassword)
+        )
+        userRepository.save(updatedUser)
+    }
+
+    @Transactional
+    fun deleteUser(id: UUID) {
         if (!userRepository.existsById(id)) {
             throw UsernameNotFoundException("User not found")
         }
